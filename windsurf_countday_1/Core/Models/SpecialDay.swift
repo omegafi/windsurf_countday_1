@@ -52,6 +52,40 @@ final class SpecialDay: Identifiable {
     func update() {
         lastModifiedAt = Date()
     }
+    
+    // Etkinlik güncelleme fonksiyonu
+    func updateSpecialDay(
+        title: String? = nil,
+        date: Date? = nil,
+        type: SpecialDayType? = nil,
+        themeColor: String? = nil,
+        isCountingForward: Bool? = nil,
+        notes: String? = nil,
+        reminderEnabled: Bool? = nil,
+        reminderDate: Date? = nil
+    ) {
+        if let title = title { self.title = title }
+        if let date = date { self.date = date }
+        if let type = type { 
+            self.type = type
+            if themeColor == nil {
+                self.themeColor = type.defaultColor
+            }
+        }
+        if let themeColor = themeColor { self.themeColor = themeColor }
+        if let isCountingForward = isCountingForward { self.isCountingForward = isCountingForward }
+        if let notes = notes { self.notes = notes }
+        if let reminderEnabled = reminderEnabled { 
+            self.reminderEnabled = reminderEnabled
+            if !reminderEnabled {
+                self.reminderDate = nil
+            }
+        }
+        if let reminderDate = reminderDate { self.reminderDate = reminderDate }
+        
+        // Son güncelleme tarihini güncelle
+        self.lastModifiedAt = Date()
+    }
 }
 
 enum SpecialDayType: String, CaseIterable, Codable, Identifiable {

@@ -1,24 +1,96 @@
 import SwiftUI
 import SwiftData
 
+// Görüntüleme modu için enum
+enum ViewMode: String, CaseIterable {
+    case list, cards, grid
+    
+    var icon: String {
+        switch self {
+        case .list: return "list.bullet"
+        case .cards: return "square.stack"
+        case .grid: return "square.grid.2x2"
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .list: return "List View"
+        case .cards: return "Card View"
+        case .grid: return "Grid View"
+        }
+    }
+    
+    var nextMode: ViewMode {
+        switch self {
+        case .list: return .cards
+        case .cards: return .grid
+        case .grid: return .list
+        }
+    }
+}
+
+// Filtreleme modu için enum
+enum FilterMode: String, CaseIterable {
+    case all, upcoming, past
+    
+    var icon: String {
+        switch self {
+        case .all: return "calendar"
+        case .upcoming: return "arrow.forward.circle"
+        case .past: return "arrow.backward.circle"
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .all: return "All Events"
+        case .upcoming: return "Upcoming Events"
+        case .past: return "Past Events"
+        }
+    }
+    
+    var nextMode: FilterMode {
+        switch self {
+        case .all: return .upcoming
+        case .upcoming: return .past
+        case .past: return .all
+        }
+    }
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \SpecialDay.date) private var specialDays: [SpecialDay]
     @State private var showingAddSheet = false
     @State private var showSettings = false
     @AppStorage("selectedViewMode") private var selectedViewMode: ViewMode = .cards
+    @State private var filterMode: FilterMode = .all
     
-    private var countdownDays: [SpecialDay] {
-        specialDays.filter { !$0.isCountingForward }
+    private var filteredDays: [SpecialDay] {
+        switch filterMode {
+        case .all:
+            return specialDays
+        case .upcoming:
+            return specialDays.filter { !$0.isCountingForward }
+        case .past:
+            return specialDays.filter { $0.isCountingForward }
+        }
     }
     
-    private var countupDays: [SpecialDay] {
-        specialDays.filter { $0.isCountingForward }
+    private var navigationTitle: String {
+        "\(filterMode.title) (\(filteredDays.count))"
     }
     
     private func cycleViewMode() {
         withAnimation {
             selectedViewMode = selectedViewMode.nextMode
+        }
+    }
+    
+    private func cycleFilterMode() {
+        withAnimation {
+            filterMode = filterMode.nextMode
         }
     }
     
@@ -35,7 +107,7 @@ struct ContentView: View {
                     VStack(spacing: 20) {
                         // View Mode Button
                         Button(action: cycleViewMode) {
-                            Label(selectedViewMode.title, systemImage: selectedViewMode.icon)
+                            Image(systemName: selectedViewMode.icon)
                                 .foregroundColor(.blue)
                                 .padding()
                                 .background(Color.blue.opacity(0.1))
@@ -43,27 +115,28 @@ struct ContentView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Countdown Section
-                        if !countdownDays.isEmpty {
-                            SectionHeaderView(title: "Upcoming Events", count: countdownDays.count)
-                            SpecialDaysListView(days: countdownDays, viewMode: selectedViewMode)
-                        }
-                        
-                        // Countup Section
-                        if !countupDays.isEmpty {
-                            SectionHeaderView(title: "Days Since", count: countupDays.count)
-                            SpecialDaysListView(days: countupDays, viewMode: selectedViewMode)
-                        }
+                        // Events List
+                        SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
+                            .padding(.horizontal)
                     }
                 }
             }
-            .navigationTitle("Special Days")
+            .navigationTitle(navigationTitle)
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddSheet = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .imageScale(.large)
+                    HStack(spacing: 16) {
+                        Button(action: cycleFilterMode) {
+                            Image(systemName: filterMode.icon)
+                                .imageScale(.large)
+                                .foregroundColor(.purple)
+                        }
+                        .help(filterMode.title)
+                        
+                        Button(action: { showingAddSheet = true }) {
+                            Image(systemName: "plus.circle.fill")
+                                .imageScale(.large)
+                        }
                     }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -138,29 +211,6 @@ struct StatCard: View {
     }
 }
 
-struct SectionHeaderView: View {
-    let title: String
-    let count: Int
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .font(.headline)
-            
-            Spacer()
-            
-            Text("\(count)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-        }
-        .padding(.horizontal)
-    }
-}
-
 struct SpecialDaysListView: View {
     let days: [SpecialDay]
     let viewMode: ViewMode
@@ -168,13 +218,10 @@ struct SpecialDaysListView: View {
     var body: some View {
         switch viewMode {
         case .list:
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(days) { day in
-                        SpecialDayRowView(day: day)
-                    }
+            LazyVStack(spacing: 12) {
+                ForEach(days) { day in
+                    SpecialDayRowView(day: day)
                 }
-                .padding()
             }
             
         case .cards:
@@ -184,126 +231,9 @@ struct SpecialDaysListView: View {
                         SpecialDayCardView(day: day)
                     }
                 }
-                .padding()
             }
             
         case .grid:
-            ScrollView {
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 16) {
-                    ForEach(days) { day in
-                        SpecialDayGridItemView(day: day)
-                    }
-                }
-                .padding()
-            }
-        }
-    }
-}
-
-struct TypeSectionView: View {
-    let type: SpecialDayType
-    let days: [SpecialDay]
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: type.icon)
-                    .foregroundColor(Color(hex: type.defaultColor))
-                
-                Text(type.rawValue)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Text("\(days.count)")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(4)
-                    .background(Color(hex: type.defaultColor))
-                    .cornerRadius(8)
-            }
-            .padding(.horizontal)
-            
-            VStack(spacing: 10) {
-                ForEach(days) { day in
-                    SpecialDayRowView(day: day)
-                }
-            }
-        }
-        .background(Color(hex: type.defaultColor).opacity(0.05))
-        .cornerRadius(16)
-    }
-}
-
-struct TypeSliderSectionView: View {
-    let type: SpecialDayType
-    let days: [SpecialDay]
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: type.icon)
-                    .foregroundColor(Color(hex: type.defaultColor))
-                
-                Text(type.rawValue)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Text("\(days.count)")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(4)
-                    .background(Color(hex: type.defaultColor))
-                    .cornerRadius(8)
-            }
-            .padding(.horizontal)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 15) {
-                    ForEach(days) { day in
-                        SpecialDaySliderView(day: day)
-                            .frame(width: UIScreen.main.bounds.width * 0.85)
-                    }
-                }
-                .padding(.horizontal)
-            }
-        }
-        .background(Color(hex: type.defaultColor).opacity(0.05))
-        .cornerRadius(16)
-    }
-}
-
-struct TypeGridSectionView: View {
-    let type: SpecialDayType
-    let days: [SpecialDay]
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Image(systemName: type.icon)
-                    .foregroundColor(Color(hex: type.defaultColor))
-                
-                Text(type.rawValue)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Text("\(days.count)")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(4)
-                    .background(Color(hex: type.defaultColor))
-                    .cornerRadius(8)
-            }
-            .padding(.horizontal)
-            
             LazyVGrid(columns: [
                 GridItem(.flexible()),
                 GridItem(.flexible())
@@ -312,37 +242,6 @@ struct TypeGridSectionView: View {
                     SpecialDayGridItemView(day: day)
                 }
             }
-            .padding(.horizontal)
-        }
-        .background(Color(hex: type.defaultColor).opacity(0.05))
-        .cornerRadius(16)
-    }
-}
-
-enum ViewMode: String, CaseIterable {
-    case list, cards, grid
-    
-    var title: String {
-        switch self {
-        case .list: return "List View"
-        case .cards: return "Card View"
-        case .grid: return "Grid View"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .list: return "list.bullet"
-        case .cards: return "square.stack"
-        case .grid: return "square.grid.2x2"
-        }
-    }
-    
-    var nextMode: ViewMode {
-        switch self {
-        case .cards: return .list
-        case .list: return .grid
-        case .grid: return .cards
         }
     }
 }

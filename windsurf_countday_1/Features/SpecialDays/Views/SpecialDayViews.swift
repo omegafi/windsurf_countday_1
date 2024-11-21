@@ -1,47 +1,51 @@
 import SwiftUI
+import SwiftData
 
 struct SpecialDaySliderView: View {
     let day: SpecialDay
     
     var body: some View {
-        HStack(spacing: 15) {
-            ZStack {
-                Circle()
-                    .fill(Color(hex: day.themeColor).opacity(0.2))
+        NavigationLink(destination: SpecialDayDetailView(day: day)) {
+            HStack(spacing: 15) {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: day.themeColor).opacity(0.2))
+                    
+                    Image(systemName: day.type.icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(Color(hex: day.themeColor))
+                }
+                .frame(width: 60, height: 60)
                 
-                Image(systemName: day.type.icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(Color(hex: day.themeColor))
-            }
-            .frame(width: 60, height: 60)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(day.title)
-                    .font(.headline)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(day.title)
+                        .font(.headline)
+                    
+                    Text(day.date, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
                 
-                Text(day.date, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("\(daysDifference(from: day.date))")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color(hex: day.themeColor))
+                Spacer()
                 
-                Text(day.isCountingForward ? "days since" : "days left")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("\(daysDifference(from: day.date))")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: day.themeColor))
+                    
+                    Text(day.isCountingForward ? "days since" : "days left")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
+            .padding()
+            .background(Color(hex: day.themeColor).opacity(0.05))
+            .cornerRadius(16)
         }
-        .padding()
-        .background(Color(hex: day.themeColor).opacity(0.05))
-        .cornerRadius(16)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -49,31 +53,73 @@ struct SpecialDayRowView: View {
     let day: SpecialDay
     
     var body: some View {
-        HStack(spacing: 15) {
-            ZStack {
-                Circle()
-                    .fill(Color(hex: day.themeColor).opacity(0.2))
+        NavigationLink(destination: SpecialDayDetailView(day: day)) {
+            HStack(spacing: 15) {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: day.themeColor).opacity(0.2))
+                    
+                    Image(systemName: day.type.icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(Color(hex: day.themeColor))
+                }
+                .frame(width: 50, height: 50)
                 
-                Image(systemName: day.type.icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(Color(hex: day.themeColor))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(day.title)
+                        .font(.headline)
+                    
+                    Text(day.date, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("\(daysDifference(from: day.date))")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: day.themeColor))
+                    
+                    Text(day.isCountingForward ? "days since" : "days left")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
-            .frame(width: 50, height: 50)
-            
-            VStack(alignment: .leading, spacing: 4) {
+            .padding()
+            .background(Color(hex: day.themeColor).opacity(0.05))
+            .cornerRadius(12)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct SpecialDayGridItemView: View {
+    let day: SpecialDay
+    
+    var body: some View {
+        NavigationLink(destination: SpecialDayDetailView(day: day)) {
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: day.themeColor).opacity(0.2))
+                    
+                    Image(systemName: day.type.icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(Color(hex: day.themeColor))
+                }
+                .frame(width: 60, height: 60)
+                
                 Text(day.title)
                     .font(.headline)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
                 
-                Text(day.date, style: .date)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 4) {
                 Text("\(daysDifference(from: day.date))")
                     .font(.title3)
                     .fontWeight(.bold)
@@ -83,47 +129,12 @@ struct SpecialDayRowView: View {
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
+            .padding()
+            .frame(width: 160, height: 200)
+            .background(Color(hex: day.themeColor).opacity(0.05))
+            .cornerRadius(16)
         }
-        .padding()
-        .background(Color(hex: day.themeColor).opacity(0.05))
-        .cornerRadius(12)
-    }
-}
-
-struct SpecialDayGridItemView: View {
-    let day: SpecialDay
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(Color(hex: day.themeColor).opacity(0.2))
-                
-                Image(systemName: day.type.icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-                    .foregroundColor(Color(hex: day.themeColor))
-            }
-            .frame(width: 70, height: 70)
-            
-            Text(day.title)
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-            
-            Text(day.date, style: .date)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            Text("\(daysDifference(from: day.date))")
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(Color(hex: day.themeColor))
-        }
-        .padding()
-        .background(Color(hex: day.themeColor).opacity(0.05))
-        .cornerRadius(16)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -131,61 +142,58 @@ struct SpecialDayCardView: View {
     let day: SpecialDay
     
     var body: some View {
-        VStack(alignment: .center, spacing: 15) {
-            ZStack {
-                Circle()
-                    .fill(Color(hex: day.themeColor).opacity(0.2))
+        NavigationLink(destination: SpecialDayDetailView(day: day)) {
+            VStack(alignment: .center, spacing: 15) {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: day.themeColor).opacity(0.2))
+                        .frame(width: 80, height: 80)
+                    
+                    Image(systemName: day.type.icon)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+                        .foregroundColor(Color(hex: day.themeColor))
+                }
                 
-                Image(systemName: day.type.icon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 40, height: 40)
-                    .foregroundColor(Color(hex: day.themeColor))
-            }
-            .frame(width: 80, height: 80)
-            
-            VStack(spacing: 6) {
                 Text(day.title)
-                    .font(.headline)
+                    .font(.title3)
+                    .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                 
                 Text(day.date, style: .date)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-            }
-            .padding(.horizontal)
-            
-            Spacer()
-            
-            VStack(alignment: .center, spacing: 4) {
-                Text("\(daysDifference(from: day.date))")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundColor(Color(hex: day.themeColor))
                 
-                Text(day.isCountingForward ? "days since" : "days left")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Spacer()
+                
+                VStack(spacing: 4) {
+                    Text("\(daysDifference(from: day.date))")
+                        .font(.system(size: 36, weight: .bold))
+                        .foregroundColor(Color(hex: day.themeColor))
+                    
+                    Text(day.isCountingForward ? "days since" : "days left")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
-            .padding(.bottom)
+            .frame(width: 200, height: 300)
+            .padding()
+            .background(Color(hex: day.themeColor).opacity(0.05))
+            .cornerRadius(20)
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
-        .frame(width: 200, height: 300)
-        .background(Color(hex: day.themeColor).opacity(0.05))
-        .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
 // MARK: - Helper Functions
-
-func daysDifference(from date: Date) -> Int {
-    let calendar = Calendar.current
-    let components = calendar.dateComponents([.day], from: Date(), to: date)
-    return abs(components.day ?? 0)
+private func daysDifference(from date: Date) -> Int {
+    Calendar.current.dateComponents([.day], from: Date(), to: date).day ?? 0
 }
 
 // MARK: - Color Extension
-
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -210,38 +218,16 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
-}
-
-#Preview {
-    VStack(spacing: 20) {
-        SpecialDaySliderView(day: SpecialDay(
-            title: "Wedding Anniversary",
-            date: Date().addingTimeInterval(86400 * 30),
-            type: .anniversary,
-            themeColor: SpecialDayType.anniversary.defaultColor
-        ))
-        
-        SpecialDayRowView(day: SpecialDay(
-            title: "Quit Smoking",
-            date: Date().addingTimeInterval(-86400 * 100),
-            type: .quitSmoking,
-            themeColor: SpecialDayType.quitSmoking.defaultColor,
-            isCountingForward: true
-        ))
-        
-        SpecialDayGridItemView(day: SpecialDay(
-            title: "Birthday",
-            date: Date().addingTimeInterval(86400 * 15),
-            type: .birthday,
-            themeColor: SpecialDayType.birthday.defaultColor
-        ))
-        
-        SpecialDayCardView(day: SpecialDay(
-            title: "Wedding Anniversary",
-            date: Date().addingTimeInterval(86400 * 30),
-            type: .anniversary,
-            themeColor: SpecialDayType.anniversary.defaultColor
-        ))
+    
+    func toHex() -> String? {
+        let uic = UIColor(self)
+        guard let components = uic.cgColor.components, components.count >= 3 else {
+            return nil
+        }
+        let r = Float(components[0])
+        let g = Float(components[1])
+        let b = Float(components[2])
+        let hex = String(format: "#%02lX%02lX%02lX", lround(Double(r * 255)), lround(Double(g * 255)), lround(Double(b * 255)))
+        return hex
     }
-    .padding()
 }
