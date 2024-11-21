@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class SpecialDay: Identifiable {
-    @Attribute(.unique) let id: UUID
+    @Attribute(.unique) var id: UUID
     var title: String
     var date: Date
     var type: SpecialDayType
@@ -16,7 +16,7 @@ final class SpecialDay: Identifiable {
     var reminderDate: Date?
     
     // Metadata
-    let createdAt: Date
+    var createdAt: Date
     var lastModifiedAt: Date
     
     init(
@@ -175,5 +175,3 @@ struct TypeCard: View {
         }
     }
 }
-
-

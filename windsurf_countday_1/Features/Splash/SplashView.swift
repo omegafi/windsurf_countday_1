@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SplashView: View {
     @State private var isActive = false
+    @State private var isAnimating = false
     @AppStorage("isFirstLaunch") private var isFirstLaunch = true
     
     var body: some View {
@@ -12,7 +13,6 @@ struct SplashView: View {
                 ContentView()
             }
         } else {
-            //
             ZStack {
                 Color("SplashBackground")
                     .ignoresSafeArea()
@@ -23,7 +23,12 @@ struct SplashView: View {
                         .scaledToFit()
                         .frame(width: 100, height: 100)
                         .foregroundColor(.accentColor)
-                        .symbolEffect(.bounce, options: .repeating)
+                        .scaleEffect(isAnimating ? 1.2 : 1.0)
+                        .animation(
+                            .easeInOut(duration: 0.5)
+                            .repeatForever(autoreverses: true),
+                            value: isAnimating
+                        )
                     
                     Text("CountDay")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
@@ -37,6 +42,7 @@ struct SplashView: View {
                 .opacity(0.4)
             }
             .onAppear {
+                isAnimating = true
                 withAnimation(.easeInOut(duration: 1.5)) {
                     // Başlangıç animasyonu
                 }

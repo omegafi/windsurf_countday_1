@@ -171,8 +171,25 @@ struct PaywallView: View {
         defer { isPurchasing = false }
         
         do {
-            if try await product.purchase() != nil {
-                dismiss()
+            let result = try await product.purchase()
+            switch result {
+            case .success(let verification):
+                switch verification {
+                case .verified(let transaction):
+                    await transaction.finish()
+                    dismiss()
+                case .unverified:
+                    showError = true
+                    errorMessage = "Purchase verification failed"
+                }
+            case .pending:
+                showError = true
+                errorMessage = "Purchase is pending"
+            case .userCancelled:
+                break
+            @unknown default:
+                showError = true
+                errorMessage = "Unknown purchase result"
             }
         } catch {
             showError = true

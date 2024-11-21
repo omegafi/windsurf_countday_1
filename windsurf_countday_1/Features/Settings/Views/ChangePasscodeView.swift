@@ -18,7 +18,7 @@ struct ChangePasscodeView: View {
     
     var body: some View {
         Form {
-            if let passcode = currentSettings?.passcode {
+            if currentSettings?.passcode != nil {
                 Section {
                     SecureField("Current Passcode", text: $currentPasscode)
                         .keyboardType(.numberPad)

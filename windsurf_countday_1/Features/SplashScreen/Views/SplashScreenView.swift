@@ -3,6 +3,9 @@ import SwiftUI
 struct SplashScreenView: View {
     @State private var isActive = false
     @AppStorage("isFirstLaunch") private var isFirstLaunch = true
+    @State private var scale: CGFloat = 0.7
+    @State private var opacity: CGFloat = 0.4
+    @State private var isAnimating = false
     
     var body: some View {
         if isActive {
@@ -22,7 +25,12 @@ struct SplashScreenView: View {
                         .scaledToFit()
                         .frame(width: 100, height: 100)
                         .foregroundColor(.accentColor)
-                        .symbolEffect(.bounce, options: .repeating)
+                        .scaleEffect(isAnimating ? 1.2 : 1.0)
+                        .animation(
+                            .easeInOut(duration: 0.5)
+                            .repeatForever(autoreverses: true),
+                            value: isAnimating
+                        )
                     
                     Text("CountDay")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
@@ -32,14 +40,17 @@ struct SplashScreenView: View {
                         .font(.system(size: 18, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
                 }
-                .scaleEffect(0.7)
-                .opacity(0.4)
+                .scaleEffect(scale)
+                .opacity(opacity)
                 .onAppear {
-                    withAnimation(.easeInOut(duration: 1.5)) {
-                        // Başlangıç animasyonu
+                    isAnimating = true
+                    withAnimation(.easeInOut(duration: 0.7)) {
+                        scale = 1.0
+                        opacity = 1.0
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                        withAnimation {
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                        withAnimation(.easeInOut(duration: 0.7)) {
                             self.isActive = true
                         }
                     }
