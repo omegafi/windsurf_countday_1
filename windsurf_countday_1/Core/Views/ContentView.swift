@@ -96,29 +96,21 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Statistics Header
-                StatisticsHeaderView(specialDays: specialDays)
-                    .padding()
-                    .background(Color(.systemBackground))
-                
-                // Main Content
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // View Mode Button
-                        Button(action: cycleViewMode) {
-                            Image(systemName: selectedViewMode.icon)
-                                .foregroundColor(.blue)
-                                .padding()
-                                .background(Color.blue.opacity(0.1))
-                                .cornerRadius(10)
-                        }
-                        .padding(.horizontal)
-                        
-                        // Events List
-                        SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
-                            .padding(.horizontal)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // View Mode Button
+                    Button(action: cycleViewMode) {
+                        Image(systemName: selectedViewMode.icon)
+                            .foregroundColor(.blue)
+                            .padding()
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(10)
                     }
+                    .padding(.horizontal)
+                    
+                    // Events List
+                    SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
+                        .padding(.horizontal)
                 }
             }
             .navigationTitle(navigationTitle)
@@ -153,61 +145,6 @@ struct ContentView: View {
                 SettingsView()
             }
         }
-    }
-}
-
-// MARK: - Supporting Views
-
-struct StatisticsHeaderView: View {
-    let specialDays: [SpecialDay]
-    
-    private var totalCount: Int { specialDays.count }
-    private var countdownCount: Int { specialDays.filter { !$0.isCountingForward }.count }
-    private var countupCount: Int { specialDays.filter { $0.isCountingForward }.count }
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("Your Special Days")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-            
-            HStack(spacing: 20) {
-                StatCard(title: "Total", count: totalCount, color: .blue)
-                StatCard(title: "Upcoming", count: countdownCount, color: .green)
-                StatCard(title: "Past", count: countupCount, color: .purple)
-            }
-        }
-        .padding()
-        .background(Color(.systemBackground))
-    }
-}
-
-struct StatCard: View {
-    let title: String
-    let count: Int
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 10) {
-            Text("\(count)")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(color)
-            
-            Text(title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(12)
-        .background(color.opacity(0.1))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(color.opacity(0.2), lineWidth: 1)
-        )
-        .transition(.scale)
     }
 }
 

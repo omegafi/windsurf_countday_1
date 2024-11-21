@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct windsurf_countday_1App: App {
     let container: ModelContainer
+    @AppStorage("themeMode") private var themeMode: ThemeMode = .system
     
     init() {
         do {
@@ -23,6 +24,7 @@ struct windsurf_countday_1App: App {
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
+                .preferredColorScheme(themeMode == .system ? nil : (themeMode == .dark ? .dark : .light))
         }
         .modelContainer(container)
     }
@@ -42,9 +44,3 @@ class AppState: ObservableObject {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
     }
 }
-
-// test commit
-
-/// test 2 commit
-///
-// test 3
