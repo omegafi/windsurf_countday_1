@@ -6,44 +6,61 @@ struct SpecialDaySliderView: View {
     
     var body: some View {
         NavigationLink(destination: SpecialDayDetailView(day: day)) {
-            HStack(spacing: 15) {
-                ZStack {
-                    Circle()
-                        .fill(Color(hex: day.themeColor).opacity(0.2))
-                    
-                    Image(systemName: day.type.icon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 30, height: 30)
-                        .foregroundColor(Color(hex: day.themeColor))
-                }
-                .frame(width: 60, height: 60)
+            ZStack {
+                // Arka plan
+                Rectangle()
+                    .fill(Color(hex: day.themeColor).opacity(0.15))
+                    .ignoresSafeArea()
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(day.title)
-                        .font(.headline)
+                // İçerik
+                VStack(spacing: 20) {
+                    // Icon ve Başlık
+                    VStack(spacing: 15) {
+                        ZStack {
+                            Circle()
+                                .fill(Color(hex: day.themeColor).opacity(0.3))
+                                .frame(width: 100, height: 100)
+                            
+                            Image(systemName: day.type.icon)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.white)
+                        }
+                        
+                        Text(day.title)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                    }
+                    .padding(.top, 40)
                     
-                    Text(day.date, style: .date)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("\(daysDifference(from: day.date))")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(Color(hex: day.themeColor))
+                    Spacer()
                     
-                    Text(day.isCountingForward ? "days since" : "days left")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                    // Gün Sayısı ve Tarih
+                    VStack(spacing: 10) {
+                        Text("\(daysDifference(from: day.date))")
+                            .font(.system(size: 72, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text(day.isCountingForward ? "days since" : "days left")
+                            .font(.title3)
+                            .foregroundColor(.white.opacity(0.8))
+                        
+                        Text(day.date, style: .date)
+                            .font(.headline)
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                    .padding(.bottom, 60)
                 }
+                .padding()
             }
-            .padding()
-            .background(Color(hex: day.themeColor).opacity(0.05))
-            .cornerRadius(16)
+            .background(
+                Color(hex: day.themeColor)
+                    .ignoresSafeArea()
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -103,36 +120,49 @@ struct SpecialDayGridItemView: View {
     var body: some View {
         NavigationLink(destination: SpecialDayDetailView(day: day)) {
             VStack(spacing: 12) {
+                // İkon Alanı
                 ZStack {
                     Circle()
                         .fill(Color(hex: day.themeColor).opacity(0.2))
+                        .frame(width: 70, height: 70)
                     
                     Image(systemName: day.type.icon)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 30, height: 30)
+                        .frame(width: 35, height: 35)
                         .foregroundColor(Color(hex: day.themeColor))
                 }
-                .frame(width: 60, height: 60)
                 
+                // Başlık
                 Text(day.title)
                     .font(.headline)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
+                    .minimumScaleFactor(0.8)
                 
+                Spacer(minLength: 8)
+                
+                // Gün Sayısı
                 Text("\(daysDifference(from: day.date))")
-                    .font(.title3)
-                    .fontWeight(.bold)
+                    .font(.system(size: 32, weight: .bold))
                     .foregroundColor(Color(hex: day.themeColor))
                 
-                Text(day.isCountingForward ? "days since" : "days left")
+                // Alt Bilgi
+                Text(day.isCountingForward ? "gün geçti" : "gün kaldı")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text(day.date, style: .date)
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
             .padding()
-            .frame(width: 160, height: 200)
-            .background(Color(hex: day.themeColor).opacity(0.05))
-            .cornerRadius(16)
+            .frame(height: 200)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(hex: day.themeColor).opacity(0.05))
+                    .shadow(color: Color(hex: day.themeColor).opacity(0.1), radius: 5, x: 0, y: 2)
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -143,46 +173,84 @@ struct SpecialDayCardView: View {
     
     var body: some View {
         NavigationLink(destination: SpecialDayDetailView(day: day)) {
-            VStack(alignment: .center, spacing: 15) {
+            GeometryReader { geometry in
                 ZStack {
+                    // Gradient Arka Plan
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(hex: day.themeColor).opacity(0.7),
+                            Color(hex: day.themeColor).opacity(0.5),
+                            Color(hex: day.themeColor).opacity(0.3)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
+                    
+                    // Dekoratif Daireler
                     Circle()
-                        .fill(Color(hex: day.themeColor).opacity(0.2))
-                        .frame(width: 80, height: 80)
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: geometry.size.width * 0.8)
+                        .offset(x: geometry.size.width * 0.3, y: -geometry.size.height * 0.2)
+                        .blur(radius: 30)
                     
-                    Image(systemName: day.type.icon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
-                        .foregroundColor(Color(hex: day.themeColor))
-                }
-                
-                Text(day.title)
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                
-                Text(day.date, style: .date)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                VStack(spacing: 4) {
-                    Text("\(daysDifference(from: day.date))")
-                        .font(.system(size: 36, weight: .bold))
-                        .foregroundColor(Color(hex: day.themeColor))
+                    Circle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: geometry.size.width * 0.6)
+                        .offset(x: -geometry.size.width * 0.2, y: geometry.size.height * 0.3)
+                        .blur(radius: 20)
                     
-                    Text(day.isCountingForward ? "days since" : "days left")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    // Ana İçerik
+                    VStack {
+                        Spacer()
+                        
+                        // İkon ve Başlık
+                        VStack(spacing: 20) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white.opacity(0.2))
+                                    .frame(width: 120, height: 120)
+                                
+                                Image(systemName: day.type.icon)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.white)
+                            }
+                            
+                            Text(day.title)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .shadow(radius: 2)
+                        }
+                        
+                        Spacer()
+                        
+                        // Gün Sayısı ve Detaylar
+                        VStack(spacing: 15) {
+                            Text("\(daysDifference(from: day.date))")
+                                .font(.system(size: 80, weight: .bold))
+                                .foregroundColor(.white)
+                                .shadow(radius: 2)
+                            
+                            Text(day.isCountingForward ? "gün geçti" : "gün kaldı")
+                                .font(.title2)
+                                .foregroundColor(.white.opacity(0.9))
+                            
+                            Text(day.date, style: .date)
+                                .font(.title3)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal)
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
             }
-            .frame(width: 200, height: 300)
-            .padding()
-            .background(Color(hex: day.themeColor).opacity(0.05))
-            .cornerRadius(20)
-            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
     }

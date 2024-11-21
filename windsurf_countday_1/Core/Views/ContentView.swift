@@ -96,9 +96,28 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
-                    .padding(.horizontal)
+            Group {
+                switch selectedViewMode {
+                case .cards:
+                    GeometryReader { geometry in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack(spacing: 0) {
+                                ForEach(filteredDays) { day in
+                                    SpecialDayCardView(day: day)
+                                        .frame(width: geometry.size.width, height: geometry.size.height)
+                                }
+                            }
+                        }
+                        .scrollTargetBehavior(.paging)
+                        .ignoresSafeArea()
+                    }
+                    .ignoresSafeArea()
+                default:
+                    ScrollView {
+                        SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
+                            .padding(.horizontal)
+                    }
+                }
             }
             .navigationTitle(navigationTitle)
             .navigationBarBackButtonHidden(true)
@@ -107,6 +126,7 @@ struct ContentView: View {
                     Button(action: { showSettings = true }) {
                         Image(systemName: "gear")
                             .imageScale(.large)
+                            .foregroundColor(.white.opacity(0.9))
                     }
                 }
                 
@@ -115,20 +135,21 @@ struct ContentView: View {
                         Button(action: cycleViewMode) {
                             Image(systemName: selectedViewMode.icon)
                                 .imageScale(.large)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                         .help(selectedViewMode.title)
                         
                         Button(action: cycleFilterMode) {
                             Image(systemName: filterMode.icon)
                                 .imageScale(.large)
-                                .foregroundColor(.purple)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                         .help(filterMode.title)
                         
                         Button(action: { showingAddSheet = true }) {
                             Image(systemName: "plus.circle.fill")
                                 .imageScale(.large)
+                                .foregroundColor(.white.opacity(0.9))
                         }
                     }
                 }
@@ -157,13 +178,18 @@ struct SpecialDaysListView: View {
             }
             
         case .cards:
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 16) {
-                    ForEach(days) { day in
-                        SpecialDayCardView(day: day)
+            GeometryReader { geometry in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 0) {
+                        ForEach(days) { day in
+                            SpecialDayCardView(day: day)
+                                .frame(width: geometry.size.width, height: geometry.size.height)
+                        }
                     }
                 }
+                .scrollTargetBehavior(.paging)
             }
+            .ignoresSafeArea()
             
         case .grid:
             LazyVGrid(columns: [
