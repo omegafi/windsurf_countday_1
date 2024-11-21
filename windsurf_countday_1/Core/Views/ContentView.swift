@@ -97,27 +97,28 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    // View Mode Button
-                    Button(action: cycleViewMode) {
-                        Image(systemName: selectedViewMode.icon)
-                            .foregroundColor(.blue)
-                            .padding()
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(10)
-                    }
+                SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
                     .padding(.horizontal)
-                    
-                    // Events List
-                    SpecialDaysListView(days: filteredDays, viewMode: selectedViewMode)
-                        .padding(.horizontal)
-                }
             }
             .navigationTitle(navigationTitle)
             .navigationBarBackButtonHidden(true)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { showSettings = true }) {
+                        Image(systemName: "gear")
+                            .imageScale(.large)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
+                        Button(action: cycleViewMode) {
+                            Image(systemName: selectedViewMode.icon)
+                                .imageScale(.large)
+                                .foregroundColor(.blue)
+                        }
+                        .help(selectedViewMode.title)
+                        
                         Button(action: cycleFilterMode) {
                             Image(systemName: filterMode.icon)
                                 .imageScale(.large)
@@ -129,12 +130,6 @@ struct ContentView: View {
                             Image(systemName: "plus.circle.fill")
                                 .imageScale(.large)
                         }
-                    }
-                }
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showSettings = true }) {
-                        Image(systemName: "gear")
-                            .imageScale(.large)
                     }
                 }
             }
